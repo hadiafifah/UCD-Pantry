@@ -89,37 +89,7 @@
 }
 
 .recipe-sidebar__find-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: var(--space-sm);
   margin: var(--space-md) var(--space-lg);
-  padding: 0.65rem var(--space-lg);
-  background-color: var(--color-primary);
-  color: var(--color-text-inverse);
-  border-radius: var(--radius-md);
-  font-size: 0.9rem;
-  font-weight: 600;
-  transition: background-color 0.15s;
-}
-
-.recipe-sidebar__find-btn:hover:not(:disabled) {
-  background-color: var(--color-primary-dark);
-}
-
-.recipe-sidebar__find-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.recipe-sidebar__spinner {
-  animation: spin 1s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
 }
 
 .recipe-sidebar__hint {

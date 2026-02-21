@@ -1,0 +1,34 @@
+.find-recipes-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-sm);
+  padding: 0.65rem var(--space-lg);
+  border: none;
+  cursor: pointer;
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: background-color 0.15s;
+}
+
+.find-recipes-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.find-recipes-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.find-recipes-btn__spinner {
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}

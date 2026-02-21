@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom'
-import { Clock, ChefHat, ArrowRight, Search, Loader } from 'lucide-react'
+import { Clock, ChefHat, ArrowRight } from 'lucide-react'
+import FindRecipesButton from './FindRecipesButton.jsx'
 import './RecipeSidebar.css'
 
 export default function RecipeSidebar({
@@ -41,23 +42,12 @@ export default function RecipeSidebar({
         </div>
       </div>
 
-      <button
+      <FindRecipesButton
         className="recipe-sidebar__find-btn"
         onClick={onFindRecipes}
-        disabled={loading || userIngredients.length === 0}
-      >
-        {loading ? (
-          <>
-            <Loader size={18} className="recipe-sidebar__spinner" />
-            Finding Recipes...
-          </>
-        ) : (
-          <>
-            <Search size={18} />
-            Find Recipes
-          </>
-        )}
-      </button>
+        loading={loading}
+        disabled={userIngredients.length === 0}
+      />
 
       {userIngredients.length === 0 && !hasSearched && (
         <p className="recipe-sidebar__hint">

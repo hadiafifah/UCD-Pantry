@@ -34,6 +34,10 @@
   gap: var(--space-lg);
 }
 
+.detection-page__recipe-suggestions {
+  scroll-margin-top: 96px;
+}
+
 .detection-page__right {
   width: 380px;
   flex-shrink: 0;
