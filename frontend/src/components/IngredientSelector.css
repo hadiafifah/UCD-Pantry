@@ -1,0 +1,146 @@
+.ingredient-selector {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  padding: var(--space-lg);
+}
+
+.ingredient-selector__header {
+  margin-bottom: var(--space-md);
+}
+
+.ingredient-selector__title {
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+  margin-bottom: 2px;
+}
+
+.ingredient-selector__hint {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
+/* Manual entry */
+.ingredient-selector__manual {
+  display: flex;
+  gap: var(--space-sm);
+  margin-bottom: var(--space-md);
+}
+
+.ingredient-selector__input-wrap {
+  flex: 1;
+  position: relative;
+}
+
+.ingredient-selector__input-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.ingredient-selector__input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) 36px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  transition: border-color 0.15s;
+}
+
+.ingredient-selector__input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.ingredient-selector__add-btn {
+  padding: var(--space-sm) var(--space-md);
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: background-color 0.15s;
+}
+
+.ingredient-selector__add-btn:hover:not(:disabled) {
+  background-color: var(--color-primary-dark);
+}
+
+.ingredient-selector__add-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* Search */
+.ingredient-selector__search {
+  position: relative;
+  margin-bottom: var(--space-md);
+}
+
+.ingredient-selector__search-icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--color-text-muted);
+}
+
+.ingredient-selector__search-input {
+  width: 100%;
+  padding: var(--space-sm) var(--space-sm) var(--space-sm) 36px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-size: 0.85rem;
+  color: var(--color-text);
+  background-color: var(--color-background);
+  transition: border-color 0.15s;
+}
+
+.ingredient-selector__search-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+/* Grid of pantry items */
+.ingredient-selector__grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs);
+  max-height: 220px;
+  overflow-y: auto;
+  padding-right: var(--space-xs);
+}
+
+.ingredient-selector__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px var(--space-sm);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background-color: var(--color-background);
+  transition: all 0.15s;
+}
+
+.ingredient-selector__item:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+  background-color: var(--color-surface-alt);
+}
+
+.ingredient-selector__no-results {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  padding: var(--space-md);
+  text-align: center;
+  width: 100%;
+}

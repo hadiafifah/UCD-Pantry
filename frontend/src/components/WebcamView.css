@@ -1,0 +1,112 @@
+.webcam-view {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-xl);
+  overflow: hidden;
+}
+
+.webcam-view__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-md) var(--space-lg);
+  border-bottom: 1px solid var(--color-border);
+}
+
+.webcam-view__title {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  font-family: var(--font-sans);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.webcam-view__badge {
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 2px var(--space-sm);
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-alt);
+  color: var(--color-primary);
+}
+
+.webcam-view__feed {
+  aspect-ratio: 16 / 10;
+  background-color: #1a1410;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.webcam-view__placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--space-sm);
+  color: rgba(255, 250, 245, 0.35);
+}
+
+.webcam-view__placeholder-text {
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.webcam-view__placeholder-hint {
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.webcam-view__detected {
+  padding: var(--space-md) var(--space-lg) var(--space-lg);
+}
+
+.webcam-view__detected-label {
+  font-family: var(--font-sans);
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: var(--space-sm);
+}
+
+.webcam-view__empty {
+  font-size: 0.85rem;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+.webcam-view__tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-sm);
+}
+
+.ingredient-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-xs);
+  padding: var(--space-xs) var(--space-sm);
+  background-color: var(--color-primary);
+  color: var(--color-text-inverse);
+  border-radius: var(--radius-full);
+  font-size: 0.8rem;
+  font-weight: 500;
+}
+
+.ingredient-tag__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 18px;
+  height: 18px;
+  border-radius: var(--radius-full);
+  color: var(--color-text-inverse);
+  transition: background-color 0.15s;
+}
+
+.ingredient-tag__remove:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
