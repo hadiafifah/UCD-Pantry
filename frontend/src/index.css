@@ -40,8 +40,8 @@
   --radius-full: 9999px;
 
   /* Typography */
-  --font-sans: 'DM Sans', system-ui, -apple-system, sans-serif;
-  --font-display: 'Playfair Display', Georgia, serif;
+  --font-sans: 'Poppins', system-ui, -apple-system, sans-serif;
+  --font-display: 'Poppins', system-ui, -apple-system, sans-serif;
 
   /* Shadows */
   --shadow-sm: 0 1px 2px rgba(61, 43, 31, 0.05);
@@ -93,6 +93,7 @@ ul, ol {
 
 h1, h2, h3, h4, h5, h6 {
   font-family: var(--font-display);
+  font-weight: 600;
   line-height: 1.2;
   color: var(--color-text);
   text-wrap: balance;

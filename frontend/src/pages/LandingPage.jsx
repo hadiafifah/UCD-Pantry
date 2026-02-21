@@ -18,15 +18,6 @@ export default function LandingPage() {
     <div className="landing">
       {/* Hero Section */}
       <section className="hero" aria-label="Welcome to The Pantry Ingredient Helper">
-        <div className="hero__bg">
-          <img
-            src="/images/hero-food.jpg"
-            alt=""
-            className="hero__bg-img"
-            aria-hidden="true"
-          />
-          <div className="hero__overlay" aria-hidden="true" />
-        </div>
         <div className="hero__content">
           <p className="hero__badge">ASUCD Pantry</p>
           <h1 className="hero__title">
@@ -46,7 +37,7 @@ export default function LandingPage() {
             </Link>
             <a
               href="https://thepantry.ucdavis.edu/"
-              className="btn btn--outline btn--lg"
+              className="btn btn--outline-dark btn--lg"
               target="_blank"
               rel="noopener noreferrer"
             >
