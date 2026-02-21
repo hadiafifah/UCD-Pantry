@@ -18,7 +18,7 @@ export default function Navbar() {
             alt="The Pantry logo"
             className="navbar__logo-img"
           />
-          <span className="navbar__logo-text">The Pantry</span>
+          <span className="navbar__logo-text">Detect-n-Dish</span>
         </Link>
 
         <button
@@ -77,7 +77,7 @@ export default function Navbar() {
               role="menuitem"
               onClick={() => setMenuOpen(false)}
             >
-              Ingredient Helper
+              Detect-n-Dish
             </Link>
           </li>
         </ul>

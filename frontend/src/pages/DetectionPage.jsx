@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react'
+import { useState, useCallback, useRef } from 'react'
 import WebcamView from '../components/WebcamView.jsx'
 import IngredientSelector from '../components/IngredientSelector.jsx'
 import RecipeSidebar from '../components/RecipeSidebar.jsx'
@@ -6,6 +6,7 @@ import { findRecipesByIngredients } from '../data/recipes.js'
 import './DetectionPage.css'
 
 export default function DetectionPage() {
+  const recipeSuggestionsRef = useRef(null)
   const [ingredients, setIngredients] = useState([])
   const [recipes, setRecipes] = useState([])
   const [loading, setLoading] = useState(false)
@@ -32,6 +33,25 @@ export default function DetectionPage() {
     setLoading(false)
   }, [ingredients])
 
+  const handleJumpToRecipes = useCallback(() => {
+    const target = recipeSuggestionsRef.current
+    if (!target) return
+
+    const top = target.getBoundingClientRect().top + window.scrollY - 96
+    window.scrollTo({
+      top: Math.max(top, 0),
+      behavior: 'smooth',
+    })
+  }, [])
+
+  const handleFindRecipesFromSelector = useCallback(async () => {
+    handleJumpToRecipes()
+    await handleFindRecipes()
+    requestAnimationFrame(() => {
+      handleJumpToRecipes()
+    })
+  }, [handleFindRecipes, handleJumpToRecipes])
+
   return (
     <div className="detection-page">
       <div className="detection-page__header">
@@ -43,27 +63,31 @@ export default function DetectionPage() {
       </div>
 
       <div className="detection-page__layout">
-        {/* Left column: Webcam + Ingredient Selector */}
+        {/* Left column: Webcam + Recipe Sidebar */}
         <div className="detection-page__left">
           <WebcamView
             detectedIngredients={ingredients}
             onRemoveIngredient={removeIngredient}
           />
+          <div ref={recipeSuggestionsRef} className="detection-page__recipe-suggestions">
+            <RecipeSidebar
+              recipes={recipes}
+              loading={loading}
+              userIngredients={ingredients}
+              onRemoveIngredient={removeIngredient}
+              onFindRecipes={handleFindRecipes}
+              hasSearched={hasSearched}
+            />
+          </div>
+        </div>
+
+        {/* Right column: Ingredient Selector */}
+        <div className="detection-page__right">
           <IngredientSelector
             selectedIngredients={ingredients}
             onAddIngredient={addIngredient}
-          />
-        </div>
-
-        {/* Right column: Recipe Sidebar */}
-        <div className="detection-page__right">
-          <RecipeSidebar
-            recipes={recipes}
+            onFindRecipes={handleFindRecipesFromSelector}
             loading={loading}
-            userIngredients={ingredients}
-            onRemoveIngredient={removeIngredient}
-            onFindRecipes={handleFindRecipes}
-            hasSearched={hasSearched}
           />
         </div>
       </div>

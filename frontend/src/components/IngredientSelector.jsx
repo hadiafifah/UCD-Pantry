@@ -1,5 +1,6 @@
 import { useState } from 'react'
-import { Plus, Search } from 'lucide-react'
+import { Plus } from 'lucide-react'
+import FindRecipesButton from './FindRecipesButton.jsx'
 import './IngredientSelector.css'
 
 // Common pantry items available at the ASUCD Pantry
@@ -14,14 +15,16 @@ const PANTRY_ITEMS = [
   'Bananas', 'Apples', 'Oranges', 'Yogurt', 'Granola Bars',
 ]
 
-export default function IngredientSelector({ selectedIngredients, onAddIngredient }) {
-  const [searchQuery, setSearchQuery] = useState('')
+export default function IngredientSelector({
+  selectedIngredients,
+  onAddIngredient,
+  onFindRecipes,
+  loading,
+}) {
   const [manualInput, setManualInput] = useState('')
 
   const filteredItems = PANTRY_ITEMS.filter(
-    (item) =>
-      item.toLowerCase().includes(searchQuery.toLowerCase()) &&
-      !selectedIngredients.includes(item)
+    (item) => !selectedIngredients.includes(item)
   )
 
   const handleManualAdd = (e) => {
@@ -60,19 +63,6 @@ export default function IngredientSelector({ selectedIngredients, onAddIngredien
         </button>
       </form>
 
-      {/* Search filter */}
-      <div className="ingredient-selector__search">
-        <Search size={16} className="ingredient-selector__search-icon" />
-        <input
-          type="text"
-          className="ingredient-selector__search-input"
-          placeholder="Search pantry items..."
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          aria-label="Search pantry items"
-        />
-      </div>
-
       {/* Pantry item buttons */}
       <div className="ingredient-selector__grid" role="group" aria-label="Available pantry items">
         {filteredItems.map((item) => (
@@ -88,10 +78,17 @@ export default function IngredientSelector({ selectedIngredients, onAddIngredien
         ))}
         {filteredItems.length === 0 && (
           <p className="ingredient-selector__no-results">
-            No matching items. Use the field above to add a custom ingredient.
+            All listed pantry items are already selected.
           </p>
         )}
       </div>
+
+      <FindRecipesButton
+        className="ingredient-selector__find-btn"
+        onClick={onFindRecipes}
+        loading={loading}
+        disabled={selectedIngredients.length === 0}
+      />
     </div>
   )
 }

@@ -32,7 +32,7 @@ export default function LandingPage() {
           <div className="hero__actions">
             <Link to="/detect" className="btn btn--primary btn--lg">
               <Camera size={20} />
-              Launch Ingredient Helper
+              Launch Detect-n-Dish
               <ArrowRight size={18} />
             </Link>
             <a
