@@ -16,7 +16,7 @@
 .detection-page__subtitle {
   color: var(--color-text-secondary);
   font-size: 0.95rem;
-  max-width: 600px;
+  width: 100%;
   line-height: 1.6;
 }
 

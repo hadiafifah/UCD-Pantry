@@ -61,6 +61,7 @@ export default function DetectionPage() {
             recipes={recipes}
             loading={loading}
             userIngredients={ingredients}
+            onRemoveIngredient={removeIngredient}
             onFindRecipes={handleFindRecipes}
             hasSearched={hasSearched}
           />

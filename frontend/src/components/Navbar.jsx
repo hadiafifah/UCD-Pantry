@@ -37,26 +37,6 @@ export default function Navbar() {
           role="menubar"
         >
           <li role="none">
-            <Link
-              to="/"
-              className={`navbar__link ${isActive('/') ? 'navbar__link--active' : ''}`}
-              role="menuitem"
-              onClick={() => setMenuOpen(false)}
-            >
-              Home
-            </Link>
-          </li>
-          <li role="none">
-            <Link
-              to="/detect"
-              className={`navbar__link navbar__link--cta ${isActive('/detect') ? 'navbar__link--active' : ''}`}
-              role="menuitem"
-              onClick={() => setMenuOpen(false)}
-            >
-              Ingredient Helper
-            </Link>
-          </li>
-          <li role="none">
             <a
               href="https://thepantry.ucdavis.edu/"
               className="navbar__link"
@@ -79,6 +59,26 @@ export default function Navbar() {
             >
               Feedback
             </a>
+          </li>
+          <li role="none">
+            <Link
+              to="/"
+              className={`navbar__link ${isActive('/') ? 'navbar__link--active' : ''}`}
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+            >
+              Home
+            </Link>
+          </li>
+          <li role="none">
+            <Link
+              to="/detect"
+              className={`navbar__link navbar__link--cta ${isActive('/detect') ? 'navbar__link--active' : ''}`}
+              role="menuitem"
+              onClick={() => setMenuOpen(false)}
+            >
+              Ingredient Helper
+            </Link>
           </li>
         </ul>
       </nav>

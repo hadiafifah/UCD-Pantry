@@ -6,6 +6,7 @@ export default function RecipeSidebar({
   recipes,
   loading,
   userIngredients,
+  onRemoveIngredient,
   onFindRecipes,
   hasSearched,
 }) {
@@ -16,6 +17,28 @@ export default function RecipeSidebar({
           <ChefHat size={20} />
           Recipe Suggestions
         </h2>
+        <div className="recipe-sidebar__selected">
+          <p className="recipe-sidebar__selected-label">Selected Ingredients</p>
+          {userIngredients.length > 0 ? (
+            <ul className="recipe-sidebar__selected-list" aria-label="Selected ingredients">
+              {userIngredients.map((ingredient) => (
+                <li key={ingredient} className="recipe-sidebar__selected-item">
+                  <span>{ingredient}</span>
+                  <button
+                    type="button"
+                    className="recipe-sidebar__selected-remove"
+                    onClick={() => onRemoveIngredient?.(ingredient)}
+                    aria-label={`Remove ${ingredient}`}
+                  >
+                    ×
+                  </button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p className="recipe-sidebar__selected-empty">No ingredients selected yet.</p>
+          )}
+        </div>
       </div>
 
       <button

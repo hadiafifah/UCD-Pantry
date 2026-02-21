@@ -115,6 +115,7 @@ const RECIPES = [
  */
 export function findRecipesByIngredients(userIngredients) {
   const lower = userIngredients.map((i) => i.toLowerCase())
+  const minimumMatches = lower.length <= 1 ? 1 : 2
 
   const scored = RECIPES.map((recipe) => {
     const matchCount = recipe.ingredients.filter((ing) =>
@@ -122,7 +123,7 @@ export function findRecipesByIngredients(userIngredients) {
     ).length
     return { recipe, matchCount }
   })
-    .filter(({ matchCount }) => matchCount >= 2)
+    .filter(({ matchCount }) => matchCount >= minimumMatches)
     .sort((a, b) => b.matchCount - a.matchCount)
 
   return scored.map(({ recipe }) => recipe)

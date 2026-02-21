@@ -24,6 +24,70 @@
   color: var(--color-text);
 }
 
+.recipe-sidebar__selected {
+  margin-top: var(--space-sm);
+}
+
+.recipe-sidebar__selected-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: var(--space-xs);
+}
+
+.recipe-sidebar__selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.recipe-sidebar__selected-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: var(--radius-full);
+  background-color: var(--color-surface-alt);
+  border: 1px solid var(--color-border);
+  font-size: 0.75rem;
+  color: var(--color-text-secondary);
+  line-height: 1.2;
+}
+
+.recipe-sidebar__selected-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+  color: var(--color-text-muted);
+  background: transparent;
+  padding: 0;
+}
+
+.recipe-sidebar__selected-remove:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--color-text);
+}
+
+.recipe-sidebar__selected-remove:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.recipe-sidebar__selected-empty {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
 .recipe-sidebar__find-btn {
   display: flex;
   align-items: center;

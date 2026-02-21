@@ -41,25 +41,53 @@
 
 /* ===== Hero ===== */
 .hero {
+  position: relative;
+  isolation: isolate;
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 5rem var(--space-lg) 4rem;
-  background-color: var(--color-surface);
+  min-height: 72vh;
+  background-image: url('/images/hero-food.png');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.hero::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(
+    135deg,
+    rgba(255, 153, 51, 0.26) 0%,
+    rgba(255, 214, 102, 0.2) 45%,
+    rgba(255, 179, 71, 0.24) 100%
+  );
+}
+
+.hero::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  background: rgba(16, 12, 8, 0.8);
 }
 
 .hero__content {
   max-width: 680px;
   text-align: center;
+  color: #fff;
 }
 
 .hero__badge {
   display: inline-block;
   padding: var(--space-xs) var(--space-md);
-  background-color: var(--color-surface-alt);
-  border: 1px solid var(--color-border);
+  background-color: rgba(255, 255, 255, 0.18);
+  border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: var(--radius-full);
-  color: var(--color-primary);
+  color: #fff;
   font-size: 0.8rem;
   font-weight: 600;
   letter-spacing: 0.1em;
@@ -70,17 +98,18 @@
 .hero__title {
   font-size: clamp(2rem, 5vw, 3.25rem);
   font-weight: 700;
-  color: var(--color-text);
+  color: #fff;
   margin-bottom: var(--space-lg);
   line-height: 1.15;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.35);
 }
 
 .hero__title-accent {
-  color: var(--color-primary);
+  color: #ffe091;
 }
 
 .hero__subtitle {
-  color: var(--color-text-secondary);
+  color: rgba(255, 255, 255, 0.92);
   font-size: 1.1rem;
   line-height: 1.6;
   margin-bottom: var(--space-2xl);
@@ -95,14 +124,14 @@
 }
 
 .btn--outline-dark {
-  border: 2px solid var(--color-border-strong);
-  color: var(--color-primary);
+  border: 2px solid rgba(255, 255, 255, 0.9);
+  color: #fff;
   background-color: transparent;
 }
 
 .btn--outline-dark:hover {
-  background-color: var(--color-surface-alt);
-  color: var(--color-primary-dark);
+  background-color: rgba(255, 255, 255, 0.2);
+  color: #fff;
 }
 
 /* ===== Section shared ===== */
