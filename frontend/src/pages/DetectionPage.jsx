@@ -23,6 +23,24 @@ export default function DetectionPage() {
     setIngredients((prev) => prev.filter((i) => i !== item))
   }, [])
 
+  const addDetectedIngredients = useCallback((detectedItems) => {
+    if (!Array.isArray(detectedItems)) return
+    setIngredients((prev) => {
+      const seen = new Set(prev.map((item) => item.toLowerCase()))
+      const next = [...prev]
+
+      detectedItems.forEach((item) => {
+        const trimmed = String(item || '').trim()
+        const key = trimmed.toLowerCase()
+        if (!trimmed || seen.has(key)) return
+        seen.add(key)
+        next.push(trimmed)
+      })
+
+      return next
+    })
+  }, [])
+
   const handleFindRecipes = useCallback(async () => {
     setLoading(true)
     setHasSearched(true)
@@ -68,6 +86,7 @@ export default function DetectionPage() {
           <WebcamView
             detectedIngredients={ingredients}
             onRemoveIngredient={removeIngredient}
+            onDetectedIngredients={addDetectedIngredients}
           />
           <div ref={recipeSuggestionsRef} className="detection-page__recipe-suggestions">
             <RecipeSidebar
