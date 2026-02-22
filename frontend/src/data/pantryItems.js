@@ -1,0 +1,68 @@
+export const PANTRY_ITEMS = [
+  'Barilla Ready Pasta Elbows',
+  'Iceberg Salad',
+  'Eggs',
+  'Green Onions',
+  'Basil',
+  'Sweet Corn',
+  'Canned Tuna',
+  'Tomatoes',
+  'Cilantro',
+  'Cucumber',
+  'Lemon',
+  'Lime',
+  'Bread',
+  'Beans',
+  'Pasta Noodles',
+  'Spinach',
+  'Oregano',
+  'Bell Pepper',
+  'Arugula',
+  'Canned Chickpea',
+  'Garlic Powder',
+  'Onion Powder',
+  'Smoked Paprika',
+  'Salt',
+  'Pepper',
+  'Ginger',
+  'Hot Pepper',
+  'Broccoli',
+  'Rice',
+  'Green Beans',
+  'Chicken Broth',
+  'Bokchoy',
+  'Poblano Peppers',
+  'Leeks',
+  'Turnips',
+  'Garlic',
+  'Parsely',
+  'Daikon',
+  'Persimmons',
+  'Avocado',
+  'Eggplants',
+  'Scallion',
+  'Mushroom',
+  'Pomegranate',
+  'Pear',
+  'Red Pepper',
+  'Radish',
+  'Jalapenos',
+  'Potatoes',
+  'Celery',
+  'Carrot',
+  'Butternut Squash',
+  'Sweet Potato',
+  'Black Beans',
+  'Cumin',
+  'Vegetable Stock',
+]
+
+const PANTRY_CANONICAL_MAP = new Map(
+  PANTRY_ITEMS.map((item) => [item.toLowerCase(), item])
+)
+
+export function canonicalizePantryIngredient(value) {
+  const trimmed = String(value || '').trim()
+  if (!trimmed) return ''
+  return PANTRY_CANONICAL_MAP.get(trimmed.toLowerCase()) || trimmed
+}
