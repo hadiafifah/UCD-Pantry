@@ -1,18 +1,20 @@
-import { useParams, Link } from 'react-router-dom'
+import { useParams, Link, useLocation } from 'react-router-dom'
 import {
   ArrowLeft,
-  Clock,
-  Users,
   ChefHat,
   CheckCircle,
   Circle,
 } from 'lucide-react'
-import { getRecipeById } from '../data/recipes.js'
+import { getRecipeById, ingredientMatches } from '../data/recipes.js'
 import './RecipePage.css'
 
 export default function RecipePage() {
   const { id } = useParams()
+  const location = useLocation()
   const recipe = getRecipeById(id)
+  const selectedIngredients = Array.isArray(location.state?.selectedIngredients)
+    ? location.state.selectedIngredients
+    : []
 
   if (!recipe) {
     return (
@@ -26,7 +28,7 @@ export default function RecipePage() {
             </p>
             <Link to="/detect" className="recipe-page__back-btn">
               <ArrowLeft size={16} />
-              Back to Ingredient Helper
+              Back to PicAPlate
             </Link>
           </div>
         </div>
@@ -34,8 +36,12 @@ export default function RecipePage() {
     )
   }
 
-  const totalTime = recipe.prepTime + recipe.cookTime
-  const youtubeEmbedUrl = `https://www.youtube.com/embed/${recipe.youtubeId}`
+  const pantryIngredients = recipe.pantryIngredients?.length
+    ? recipe.pantryIngredients
+    : []
+  const morePantryIngredients = pantryIngredients.filter(
+    (pantryItem) => !selectedIngredients.some((ui) => ingredientMatches(ui, pantryItem))
+  )
 
   return (
     <div className="recipe-page">
@@ -43,65 +49,33 @@ export default function RecipePage() {
         {/* Back link */}
         <Link to="/detect" className="recipe-page__back-link">
           <ArrowLeft size={16} />
-          Back to Ingredient Helper
+          Back to PicAPlate
         </Link>
 
-        {/* Title + Meta */}
+        {/* Title */}
         <header className="recipe-page__header">
-          <div className="recipe-page__tags">
-            {recipe.tags.map((tag) => (
-              <span key={tag} className="recipe-page__tag">
-                {tag}
-              </span>
-            ))}
-          </div>
           <h1 className="recipe-page__title">{recipe.title}</h1>
-          <div className="recipe-page__meta">
-            <div className="recipe-page__meta-item">
-              <Clock size={18} />
-              <div>
-                <span className="recipe-page__meta-label">Total Time</span>
-                <span className="recipe-page__meta-value">{totalTime} min</span>
-              </div>
-            </div>
-            <div className="recipe-page__meta-item">
-              <Clock size={18} />
-              <div>
-                <span className="recipe-page__meta-label">Prep</span>
-                <span className="recipe-page__meta-value">{recipe.prepTime} min</span>
-              </div>
-            </div>
-            <div className="recipe-page__meta-item">
-              <ChefHat size={18} />
-              <div>
-                <span className="recipe-page__meta-label">Cook</span>
-                <span className="recipe-page__meta-value">{recipe.cookTime} min</span>
-              </div>
-            </div>
-            <div className="recipe-page__meta-item">
-              <Users size={18} />
-              <div>
-                <span className="recipe-page__meta-label">Servings</span>
-                <span className="recipe-page__meta-value">{recipe.servings}</span>
-              </div>
-            </div>
-          </div>
         </header>
 
-        {/* Video */}
-        <section className="recipe-page__video" aria-label="Recipe video">
-          <iframe
-            src={youtubeEmbedUrl}
-            title={`Video guide for ${recipe.title}`}
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowFullScreen
-            className="recipe-page__iframe"
-          />
-        </section>
+        {morePantryIngredients.length > 0 && (
+          <section className="recipe-page__pantry-tip" aria-labelledby="pantry-tip-heading">
+            <h2 id="pantry-tip-heading" className="recipe-page__pantry-tip-title">
+              More ingredients you can get at the pantry
+            </h2>
+            <ul className="recipe-page__pantry-tip-list">
+              {morePantryIngredients.map((ing, index) => (
+                <li key={`${ing}-${index}`} className="recipe-page__pantry-tip-item">
+                  <Circle size={14} className="recipe-page__pantry-tip-icon" />
+                  <span>{ing}</span>
+                </li>
+              ))}
+            </ul>
+          </section>
+        )}
 
         {/* Content: Ingredients + Instructions side by side */}
         <div className="recipe-page__content">
-          {/* Ingredients */}
+          {/* Full Ingredients */}
           <section className="recipe-page__ingredients" aria-labelledby="ingredients-heading">
             <h2 id="ingredients-heading" className="recipe-page__section-title">
               Ingredients
@@ -109,17 +83,21 @@ export default function RecipePage() {
             <ul className="recipe-page__ingredient-list">
               {recipe.ingredients.map((ing) => (
                 <li key={ing} className="recipe-page__ingredient-item">
-                  <Circle size={16} className="recipe-page__ingredient-icon" />
-                  {ing}
+                  {selectedIngredients.some((ui) => ingredientMatches(ui, ing)) ? (
+                    <CheckCircle size={16} className="recipe-page__ingredient-icon recipe-page__ingredient-icon--checked" />
+                  ) : (
+                    <Circle size={16} className="recipe-page__ingredient-icon" />
+                  )}
+                  <span>{ing}</span>
                 </li>
               ))}
             </ul>
           </section>
 
-          {/* Instructions */}
+          {/* Preparation */}
           <section className="recipe-page__instructions" aria-labelledby="instructions-heading">
             <h2 id="instructions-heading" className="recipe-page__section-title">
-              Instructions
+              Preparation
             </h2>
             <ol className="recipe-page__step-list">
               {recipe.instructions.map((step, i) => (

@@ -1,36 +1,86 @@
 import { useState } from 'react'
-import { Plus } from 'lucide-react'
+import { Plus, X } from 'lucide-react'
 import FindRecipesButton from './FindRecipesButton.jsx'
 import './IngredientSelector.css'
 
-// Common pantry items available at the ASUCD Pantry
+// Client-provided pantry ingredients
 const PANTRY_ITEMS = [
-  'Rice', 'Pasta', 'Canned Beans', 'Canned Tomatoes', 'Lentils',
-  'Oats', 'Peanut Butter', 'Bread', 'Eggs', 'Milk',
-  'Cheese', 'Butter', 'Onion', 'Garlic', 'Potatoes',
-  'Carrots', 'Bell Pepper', 'Tomatoes', 'Spinach', 'Lettuce',
-  'Chicken', 'Ground Beef', 'Tofu', 'Tortillas', 'Cereal',
-  'Canned Tuna', 'Soy Sauce', 'Olive Oil', 'Salt', 'Pepper',
-  'Flour', 'Sugar', 'Canned Corn', 'Frozen Vegetables', 'Ramen',
-  'Bananas', 'Apples', 'Oranges', 'Yogurt', 'Granola Bars',
+  'Barilla Ready Pasta Elbows',
+  'Iceberg Salad',
+  'Eggs',
+  'Green Onions',
+  'Basil',
+  'Sweet Corn',
+  'Canned Tuna',
+  'Tomatoes',
+  'Cilantro',
+  'Cucumber',
+  'Lemon',
+  'Lime',
+  'Bread',
+  'Beans',
+  'Pasta Noodles',
+  'Spinach',
+  'Oregano',
+  'Bell Pepper',
+  'Arugula',
+  'Canned Chickpea',
+  'Garlic Powder',
+  'Onion Powder',
+  'Smoked Paprika',
+  'Salt',
+  'Pepper',
+  'Ginger',
+  'Hot Pepper',
+  'Broccoli',
+  'Rice',
+  'Green Beans',
+  'Chicken Broth',
+  'Bokchoy',
+  'Poblano Peppers',
+  'Leeks',
+  'Turnips',
+  'Garlic',
+  'Parsely',
+  'Daikon',
+  'Persimmons',
+  'Avocado',
+  'Eggplants',
+  'Scallion',
+  'Mushroom',
+  'Pomegranate',
+  'Pear',
+  'Red Pepper',
+  'Radish',
+  'Jalapenos',
+  'Potatoes',
+  'Celery',
+  'Carrot',
+  'Butternut Squash',
+  'Sweet Potato',
+  'Black Beans',
+  'Cumin',
+  'Vegetable Stock',
 ]
 
 export default function IngredientSelector({
   selectedIngredients,
   onAddIngredient,
+  onRemoveIngredient,
   onFindRecipes,
   loading,
 }) {
   const [manualInput, setManualInput] = useState('')
+  const selectedSet = new Set(selectedIngredients.map((item) => item.trim().toLowerCase()))
 
   const filteredItems = PANTRY_ITEMS.filter(
-    (item) => !selectedIngredients.includes(item)
+    (item) => !selectedSet.has(item.toLowerCase())
   )
 
   const handleManualAdd = (e) => {
     e.preventDefault()
     const trimmed = manualInput.trim()
-    if (trimmed && !selectedIngredients.includes(trimmed)) {
+    if (trimmed && !selectedSet.has(trimmed.toLowerCase())) {
       onAddIngredient(trimmed)
       setManualInput('')
     }
@@ -79,6 +129,33 @@ export default function IngredientSelector({
         {filteredItems.length === 0 && (
           <p className="ingredient-selector__no-results">
             All listed pantry items are already selected.
+          </p>
+        )}
+      </div>
+
+      <div className="ingredient-selector__selected" aria-label="Added ingredients">
+        <p className="ingredient-selector__selected-label">
+          Added Ingredients ({selectedIngredients.length})
+        </p>
+        {selectedIngredients.length > 0 ? (
+          <ul className="ingredient-selector__selected-list">
+            {selectedIngredients.map((item) => (
+              <li key={item} className="ingredient-selector__selected-item">
+                <span>{item}</span>
+                <button
+                  type="button"
+                  className="ingredient-selector__selected-remove"
+                  onClick={() => onRemoveIngredient(item)}
+                  aria-label={`Remove ${item}`}
+                >
+                  <X size={12} />
+                </button>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className="ingredient-selector__selected-empty">
+            No ingredients added yet.
           </p>
         )}
       </div>
