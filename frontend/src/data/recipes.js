@@ -1,66 +1,5 @@
-import pantryRecipesCsv from '@dataset/pantry-recipes.csv?raw'
-
-function parseCsv(text) {
-  const rows = []
-  let row = []
-  let value = ''
-  let inQuotes = false
-
-  for (let i = 0; i < text.length; i += 1) {
-    const char = text[i]
-    const next = text[i + 1]
-
-    if (char === '"') {
-      if (inQuotes && next === '"') {
-        value += '"'
-        i += 1
-      } else {
-        inQuotes = !inQuotes
-      }
-      continue
-    }
-
-    if (char === ',' && !inQuotes) {
-      row.push(value)
-      value = ''
-      continue
-    }
-
-    if ((char === '\n' || char === '\r') && !inQuotes) {
-      if (char === '\r' && next === '\n') {
-        i += 1
-      }
-      row.push(value)
-      rows.push(row)
-      row = []
-      value = ''
-      continue
-    }
-
-    value += char
-  }
-
-  if (value.length > 0 || row.length > 0) {
-    row.push(value)
-    rows.push(row)
-  }
-
-  return rows.filter((r) => r.some((cell) => cell.trim() !== ''))
-}
-
-function splitMultilineField(value) {
-  return value
-    .split(/\r?\n/)
-    .map((line) => line.trim())
-    .filter(Boolean)
-}
-
-function slugify(value) {
-  return value
-    .toLowerCase()
-    .replace(/[^a-z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-}
+const RECIPES_API_BASE_URL = import.meta.env.VITE_RECIPES_API_URL?.trim() || 'http://localhost:5050'
+let recipesCache = null
 
 const STOP_WORDS = new Set([
   'a',
@@ -105,90 +44,137 @@ function normalizeToken(value) {
 }
 
 export function tokenizeIngredient(value) {
-  return value
+  return String(value || '')
     .split(/\s+/)
     .map(normalizeToken)
     .filter((token) => token && !STOP_WORDS.has(token))
 }
 
-function normalizeRow(row, headers, index) {
-  const get = (name) => row[headers[name]]?.trim() ?? ''
-  const title = get('recipe')
+export function ingredientMatches(selectedIngredient, ingredientLine) {
+  const selectedTokens = tokenizeIngredient(selectedIngredient)
+  const ingredientTokens = new Set(tokenizeIngredient(ingredientLine))
+
+  if (!selectedTokens.length || !ingredientTokens.size) return false
+  return selectedTokens.every((token) => ingredientTokens.has(token))
+}
+
+function splitField(value) {
+  if (Array.isArray(value)) {
+    return value.map((item) => String(item || '').trim()).filter(Boolean)
+  }
+
+  return String(value || '')
+    .split(/\r?\n|,/)
+    .map((line) => line.trim())
+    .filter(Boolean)
+}
+
+function slugify(value) {
+  return String(value || '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '')
+}
+
+function pickField(source, keys) {
+  for (const key of keys) {
+    if (source[key] !== undefined && source[key] !== null) {
+      return source[key]
+    }
+  }
+  return ''
+}
+
+function normalizeHeaderKey(key) {
+  return String(key || '')
+    .toLowerCase()
+    .replace(/[^a-z]/g, '')
+}
+
+function toNormalizedKeyMap(rawRecipe) {
+  const result = {}
+  Object.entries(rawRecipe || {}).forEach(([key, value]) => {
+    result[normalizeHeaderKey(key)] = value
+  })
+  return result
+}
+
+function normalizeRecipe(rawRecipe, index) {
+  const keyMap = toNormalizedKeyMap(rawRecipe)
+  const title = String(
+    pickField(rawRecipe, ['title', 'Recipe', 'recipe']) ||
+      keyMap.recipe
+  ).trim()
+  const id =
+    String(pickField(rawRecipe, ['id', '_id']) || '').trim() ||
+    `${slugify(title) || 'recipe'}-${index + 1}`
 
   return {
-    id: `${slugify(title) || 'recipe'}-${index + 1}`,
+    id,
     title,
-    ingredients: splitMultilineField(get('ingredients')),
-    pantryIngredients: splitMultilineField(get('ingredientspantry')),
-    instructions: splitMultilineField(get('preparation')),
+    ingredients: splitField(
+      pickField(rawRecipe, ['ingredients', 'Ingredients']) ||
+        keyMap.ingredients
+    ),
+    pantryIngredients: splitField(
+      pickField(rawRecipe, [
+        'pantryIngredients',
+        'Ingredient(s) at The Pantry',
+        'ingredient(s) at the pantry',
+      ]) || keyMap.ingredientsatthepantry || keyMap.ingredientspantry
+    ),
+    instructions: splitField(
+      pickField(rawRecipe, ['instructions', 'Preparation', 'preparation']) ||
+        keyMap.preparation
+    ),
   }
 }
 
-function resolveHeaderIndex(indexByHeader, candidates) {
-  for (const key of candidates) {
-    if (key in indexByHeader) return indexByHeader[key]
+export async function fetchRecipes({ force = false } = {}) {
+  if (recipesCache && !force) return recipesCache
+
+  const response = await fetch(`${RECIPES_API_BASE_URL}/recipes`)
+  if (!response.ok) {
+    throw new Error(`Recipe API returned ${response.status}`)
   }
-  return -1
-}
 
-function loadRecipesFromCsv(csvText) {
-  const rows = parseCsv(csvText.replace(/^\uFEFF/, ''))
-  if (rows.length < 2) return []
-
-  const headers = rows[0].map((h) => h.toLowerCase().replace(/[^a-z]/g, ''))
-  const indexByHeader = Object.fromEntries(headers.map((h, i) => [h, i]))
-  const mappedHeaders = {
-    recipe: resolveHeaderIndex(indexByHeader, ['recipe']),
-    ingredients: resolveHeaderIndex(indexByHeader, ['ingredients']),
-    ingredientspantry: resolveHeaderIndex(indexByHeader, [
-      'ingredientsatthepantry',
-      'ingredientspantry',
-    ]),
-    preparation: resolveHeaderIndex(indexByHeader, ['preparation']),
-  }
-  if (Object.values(mappedHeaders).some((index) => index === -1)) return []
-
-  return rows
-    .slice(1)
-    .map((row, index) => normalizeRow(row, mappedHeaders, index))
+  const payload = await response.json()
+  const list = Array.isArray(payload) ? payload : []
+  recipesCache = list
+    .map((recipe, index) => normalizeRecipe(recipe, index))
     .filter((recipe) => recipe.title)
+
+  return recipesCache
 }
 
-const RECIPES = loadRecipesFromCsv(pantryRecipesCsv)
-
-export function ingredientMatches(selectedIngredient, pantryIngredientLine) {
-  const selectedTokens = tokenizeIngredient(selectedIngredient)
-  const pantryTokens = new Set(tokenizeIngredient(pantryIngredientLine))
-
-  if (!selectedTokens.length || !pantryTokens.size) return false
-  return selectedTokens.every((token) => pantryTokens.has(token))
-}
-
-export function findRecipesByIngredients(userIngredients) {
+export async function findRecipesByIngredients(userIngredients) {
   if (!userIngredients.length) return []
 
   const normalizedUserIngredients = userIngredients
-    .map((item) => item.trim())
+    .map((item) => String(item || '').trim())
     .filter(Boolean)
   if (!normalizedUserIngredients.length) return []
 
-  const minimumMatches = 1
-
-  const scored = RECIPES.map((recipe) => {
-    const pantryList = recipe.pantryIngredients
-    const matchCount = pantryList.filter((pantryItem) =>
-      normalizedUserIngredients.some((userItem) =>
-        ingredientMatches(userItem, pantryItem)
-      )
-    ).length
-    return { recipe, matchCount }
+  const response = await fetch(`${RECIPES_API_BASE_URL}/recipes/search`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ ingredients: normalizedUserIngredients }),
   })
-    .filter(({ matchCount }) => matchCount >= minimumMatches)
-    .sort((a, b) => b.matchCount - a.matchCount)
 
-  return scored.map(({ recipe }) => recipe)
+  if (!response.ok) {
+    throw new Error(`Recipe search API returned ${response.status}`)
+  }
+
+  const payload = await response.json()
+  const list = Array.isArray(payload) ? payload : []
+  return list
+    .map((recipe, index) => normalizeRecipe(recipe, index))
+    .filter((recipe) => recipe.title)
 }
 
-export function getRecipeById(id) {
-  return RECIPES.find((r) => r.id === id) || null
+export async function getRecipeById(id) {
+  const recipes = await fetchRecipes()
+  return recipes.find((recipe) => recipe.id === id) || null
 }

@@ -1,8 +1,8 @@
-import { useState, useCallback, useRef } from 'react'
+import { useState, useCallback, useRef, useEffect } from 'react'
 import WebcamView from '../components/WebcamView.jsx'
 import IngredientSelector from '../components/IngredientSelector.jsx'
 import RecipeSidebar from '../components/RecipeSidebar.jsx'
-import { findRecipesByIngredients } from '../data/recipes.js'
+import { findRecipesByIngredients, fetchRecipes } from '../data/recipes.js'
 import './DetectionPage.css'
 
 export default function DetectionPage() {
@@ -44,10 +44,13 @@ export default function DetectionPage() {
   const handleFindRecipes = useCallback(async () => {
     setLoading(true)
     setHasSearched(true)
-    // Simulate a brief loading state (replace with real API call)
-    await new Promise((resolve) => setTimeout(resolve, 600))
-    const results = findRecipesByIngredients(ingredients)
-    setRecipes(results)
+    try {
+      const results = await findRecipesByIngredients(ingredients)
+      setRecipes(results)
+    } catch (error) {
+      console.error('Failed to fetch recipes from API:', error)
+      setRecipes([])
+    }
     setLoading(false)
   }, [ingredients])
 
@@ -69,6 +72,25 @@ export default function DetectionPage() {
       handleJumpToRecipes()
     })
   }, [handleFindRecipes, handleJumpToRecipes])
+
+  useEffect(() => {
+    let mounted = true
+
+    async function loadAllRecipes() {
+      try {
+        const allRecipes = await fetchRecipes()
+        if (mounted) setRecipes(allRecipes)
+      } catch (error) {
+        console.error('Failed to preload recipes from API:', error)
+        if (mounted) setRecipes([])
+      }
+    }
+
+    loadAllRecipes()
+    return () => {
+      mounted = false
+    }
+  }, [])
 
   return (
     <div className="detection-page">

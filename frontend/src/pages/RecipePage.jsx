@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { useParams, Link, useLocation } from 'react-router-dom'
 import {
   ArrowLeft,
@@ -11,10 +12,46 @@ import './RecipePage.css'
 export default function RecipePage() {
   const { id } = useParams()
   const location = useLocation()
-  const recipe = getRecipeById(id)
   const selectedIngredients = Array.isArray(location.state?.selectedIngredients)
     ? location.state.selectedIngredients
     : []
+  const [recipe, setRecipe] = useState(null)
+  const [loading, setLoading] = useState(true)
+
+  useEffect(() => {
+    let mounted = true
+
+    async function loadRecipe() {
+      setLoading(true)
+      try {
+        const found = await getRecipeById(id)
+        if (mounted) setRecipe(found)
+      } catch (error) {
+        console.error('Failed to fetch recipe by id:', error)
+        if (mounted) setRecipe(null)
+      } finally {
+        if (mounted) setLoading(false)
+      }
+    }
+
+    loadRecipe()
+    return () => {
+      mounted = false
+    }
+  }, [id])
+
+  if (loading) {
+    return (
+      <div className="recipe-page">
+        <div className="recipe-page__inner">
+          <div className="recipe-page__not-found">
+            <ChefHat size={48} />
+            <h1>Loading Recipe...</h1>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   if (!recipe) {
     return (
