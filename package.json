@@ -2,6 +2,7 @@
   "name": "ucd-pantry-root",
   "private": true,
   "scripts": {
+    "detect-api": "cd backend && python -m uvicorn detection_api:app --reload --port 8000",
     "dev": "cd frontend && npm install && npm run dev",
     "build": "cd frontend && npm install && npm run build",
     "preview": "cd frontend && npm run preview"

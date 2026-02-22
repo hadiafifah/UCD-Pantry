@@ -2,28 +2,28 @@
 
 ## Webcam + Model Integration
 
-Frontend webcam support is implemented in `frontend/src/components/WebcamView.jsx`.
+Your YOLO model (`my_model`) is integrated. Detection boxes appear on the live camera feed.
 
-The frontend expects a detection API URL from:
+### Quick start
 
-- `frontend/.env` with `VITE_DETECTION_API_URL=http://localhost:8000`
+1. **Install Python deps and run the detection API:**
+   ```bash
+   cd backend && pip install -r requirements.txt && python -m uvicorn detection_api:app --reload --port 8000
+   ```
+   Or from project root: `npm run detect-api`
 
-When detection is enabled, the frontend sends webcam frames to:
+2. **Set the API URL** in `frontend/.env`:
+   ```
+   VITE_DETECTION_API_URL=http://localhost:8000
+   ```
 
-- `POST {VITE_DETECTION_API_URL}/detect`
-- Form field: `frame` (JPEG image)
-- Expected JSON response:
+3. **Run the frontend:**
+   ```bash
+   npm run dev
+   ```
 
-```json
-{
-  "ingredients": ["Onion", "Tomato", "Garlic"]
-}
-```
+4. **Use the app:** Start camera → Start detection. Bounding boxes and labels appear over the webcam feed; detected ingredients populate below.
 
-Suggested backend layout for your OpenCV + YOLO model:
+### API
 
-- `backend/app.py` (FastAPI/Flask inference server)
-- `backend/models/yolo/best.pt` (trained YOLO weights)
-- `backend/models/yolo/classes.yaml` (label mapping)
-
-This keeps model code and weights on the backend while the React app only handles camera capture and UI state.
+- `POST /detect` — Form field: `frame` (JPEG). Returns `{ ingredients: string[], detections: [{ label, confidence, bbox }] }`

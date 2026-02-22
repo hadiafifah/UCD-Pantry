@@ -14,8 +14,11 @@ export default function WebcamView({
 
   const [cameraState, setCameraState] = useState('idle')
   const [errorMessage, setErrorMessage] = useState('')
+  const [detectionError, setDetectionError] = useState('')
   const [isDetecting, setIsDetecting] = useState(false)
+  const [lastDetections, setLastDetections] = useState([])
 
+  const overlayRef = useRef(null)
   const detectionApiBaseUrl = import.meta.env.VITE_DETECTION_API_URL?.trim() || ''
   const canRunDetection = Boolean(detectionApiBaseUrl && onDetectedIngredients)
 
@@ -25,6 +28,8 @@ export default function WebcamView({
       detectIntervalRef.current = null
     }
     setIsDetecting(false)
+    setLastDetections([])
+    setDetectionError('')
   }, [])
 
   const stopCamera = useCallback(() => {
@@ -54,7 +59,7 @@ export default function WebcamView({
       setErrorMessage('')
 
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: { facingMode: 'environment' },
+        video: { width: { ideal: 640 }, height: { ideal: 480 } },
         audio: false,
       })
 
@@ -80,7 +85,7 @@ export default function WebcamView({
     context.drawImage(video, 0, 0, canvas.width, canvas.height)
 
     const blob = await new Promise((resolve) => {
-      canvas.toBlob(resolve, 'image/jpeg', 0.8)
+      canvas.toBlob(resolve, 'image/jpeg', 0.95)
     })
     if (!blob) return
 
@@ -88,18 +93,30 @@ export default function WebcamView({
     body.append('frame', blob, 'frame.jpg')
 
     try {
+      setDetectionError('')
       const response = await fetch(`${detectionApiBaseUrl}/detect`, {
         method: 'POST',
         body,
       })
 
-      if (!response.ok) return
+      if (!response.ok) {
+        const errText = await response.text()
+        setDetectionError(`API error ${response.status}: ${errText.slice(0, 80)}`)
+        setLastDetections([])
+        return
+      }
       const payload = await response.json()
       if (Array.isArray(payload.ingredients)) {
         onDetectedIngredients(payload.ingredients)
       }
-    } catch {
-      // Ignore transient API/network errors; keep camera running.
+      if (Array.isArray(payload.detections)) {
+        setLastDetections(payload.detections)
+      } else {
+        setLastDetections([])
+      }
+    } catch (err) {
+      setLastDetections([])
+      setDetectionError(err?.message || 'Cannot reach detection API. Is it running on port 8000?')
     }
   }, [detectionApiBaseUrl, onDetectedIngredients])
 
@@ -134,6 +151,60 @@ export default function WebcamView({
     })
   }, [cameraState])
 
+  // Draw detection boxes on overlay canvas
+  useEffect(() => {
+    const overlay = overlayRef.current
+    const video = videoRef.current
+    if (!overlay || !video) return
+
+    const ctx = overlay.getContext('2d')
+    if (!ctx) return
+
+    const cw = overlay.clientWidth
+    const ch = overlay.clientHeight
+    overlay.width = cw
+    overlay.height = ch
+    ctx.clearRect(0, 0, cw, ch)
+
+    if (lastDetections.length === 0) return
+    const vw = video.videoWidth
+    const vh = video.videoHeight
+
+    // object-fit: cover transform
+    const scale = Math.max(cw / vw, ch / vh)
+    const visW = cw / scale
+    const visH = ch / scale
+    const offsetX = (vw - visW) / 2
+    const offsetY = (vh - visH) / 2
+
+    const toDisplay = (x, y) => [(x - offsetX) * scale, (y - offsetY) * scale]
+
+    const colors = ['#a47857', '#4494e4', '#5d61d1', '#b2b685', '#589f6a', '#60cae7', '#9f7ca8', '#a9a2f1', '#627696', '#acb0b8']
+
+    lastDetections.forEach((d, i) => {
+      const [x1, y1, x2, y2] = d.bbox || []
+      if (x1 == null || y1 == null || x2 == null || y2 == null) return
+
+      const [sx1, sy1] = toDisplay(x1, y1)
+      const [sx2, sy2] = toDisplay(x2, y2)
+      const color = colors[i % colors.length]
+
+      ctx.strokeStyle = color
+      ctx.lineWidth = 3
+      ctx.strokeRect(sx1, sy1, sx2 - sx1, sy2 - sy1)
+
+      const label = `${d.label} ${Math.round((d.confidence || 0) * 100)}%`
+      ctx.font = 'bold 12px system-ui, sans-serif'
+      const m = ctx.measureText(label)
+      const tw = m.width + 8
+      const th = 18
+      ctx.fillStyle = color
+      ctx.fillRect(sx1, sy1 - th, tw, th)
+      ctx.fillStyle = '#fff'
+      ctx.fillText(label, sx1 + 4, sy1 - 6)
+    })
+  }, [lastDetections, cameraState])
+
   return (
     <div className="webcam-view">
       <div className="webcam-view__header">
@@ -166,7 +237,7 @@ export default function WebcamView({
               <p className="webcam-view__placeholder-hint">{errorMessage}</p>
             ) : (
               <p className="webcam-view__placeholder-hint">
-                YOLO model results will appear after backend integration
+                Start the detection API with <code>npm run detect-api</code>, then start the camera and detection
               </p>
             )}
             <button className="webcam-view__button" onClick={startCamera}>
@@ -176,8 +247,20 @@ export default function WebcamView({
           </div>
         )}
         <canvas ref={canvasRef} className="webcam-view__capture-canvas" aria-hidden="true" />
+        {cameraState === 'live' && (
+          <canvas
+            ref={overlayRef}
+            className="webcam-view__overlay"
+            aria-hidden="true"
+          />
+        )}
       </div>
 
+      {detectionError && (
+        <p className="webcam-view__error" role="alert">
+          {detectionError}
+        </p>
+      )}
       {cameraState === 'live' && (
         <div className="webcam-view__controls">
           <button className="webcam-view__button" onClick={stopCamera}>
@@ -197,12 +280,17 @@ export default function WebcamView({
 
       <div className="webcam-view__detected">
         <h3 className="webcam-view__detected-label">Detected Ingredients</h3>
-        {detectedIngredients.length === 0 ? (
+        {!canRunDetection && cameraState === 'live' && (
+          <p className="webcam-view__error">
+            Detection disabled: add VITE_DETECTION_API_URL=http://localhost:8000 to frontend/.env and restart.
+          </p>
+        )}
+        {detectedIngredients.length === 0 && !detectionError && canRunDetection ? (
           <p className="webcam-view__empty">
             No ingredients detected yet. Point the camera at your items or add
             them manually below.
           </p>
-        ) : (
+        ) : detectedIngredients.length > 0 ? (
           <ul className="webcam-view__tags" aria-label="Detected ingredients">
             {detectedIngredients.map((item) => (
               <li key={item} className="ingredient-tag">
@@ -217,7 +305,7 @@ export default function WebcamView({
               </li>
             ))}
           </ul>
-        )}
+        ) : null}
       </div>
     </div>
   )
