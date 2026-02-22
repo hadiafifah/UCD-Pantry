@@ -73,7 +73,7 @@ export default function DetectionPage() {
   return (
     <div className="detection-page">
       <div className="detection-page__header">
-        <h1 className="detection-page__title">Ingredient Helper</h1>
+        <h1 className="detection-page__title">PicAPlate</h1>
         <p className="detection-page__subtitle">
           Scan ingredients with your webcam, add them manually, and discover
           recipes you can make right now.
@@ -93,8 +93,6 @@ export default function DetectionPage() {
               recipes={recipes}
               loading={loading}
               userIngredients={ingredients}
-              onRemoveIngredient={removeIngredient}
-              onFindRecipes={handleFindRecipes}
               hasSearched={hasSearched}
             />
           </div>
@@ -105,6 +103,7 @@ export default function DetectionPage() {
           <IngredientSelector
             selectedIngredients={ingredients}
             onAddIngredient={addIngredient}
+            onRemoveIngredient={removeIngredient}
             onFindRecipes={handleFindRecipesFromSelector}
             loading={loading}
           />

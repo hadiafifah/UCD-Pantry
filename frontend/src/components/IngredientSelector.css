@@ -118,6 +118,61 @@
   width: 100%;
 }
 
+.ingredient-selector__selected {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: var(--space-sm);
+  margin-bottom: var(--space-md);
+  background-color: var(--color-surface-alt);
+}
+
+.ingredient-selector__selected-label {
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--color-text-muted);
+  margin-bottom: var(--space-xs);
+}
+
+.ingredient-selector__selected-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.ingredient-selector__selected-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-full);
+  font-size: 0.78rem;
+  color: var(--color-text-secondary);
+  background: var(--color-background);
+}
+
+.ingredient-selector__selected-remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  color: var(--color-text-muted);
+}
+
+.ingredient-selector__selected-remove:hover {
+  background-color: rgba(0, 0, 0, 0.08);
+  color: var(--color-text);
+}
+
+.ingredient-selector__selected-empty {
+  font-size: 0.8rem;
+  color: var(--color-text-muted);
+}
+
 .ingredient-selector__find-btn {
   width: 100%;
 }

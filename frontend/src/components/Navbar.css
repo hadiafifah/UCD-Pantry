@@ -48,6 +48,10 @@
   gap: var(--space-xs);
 }
 
+.navbar__item {
+  position: relative;
+}
+
 .navbar__link {
   display: inline-flex;
   align-items: center;
@@ -69,10 +73,16 @@
   background-color: var(--color-surface-alt);
 }
 
+.navbar__link--trigger {
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+
 .navbar__link--cta {
   background-color: var(--color-primary);
   color: var(--color-text-inverse);
-  font-weight: 600;
+  font-weight: 700;
 }
 
 .navbar__link--cta:hover {
@@ -83,6 +93,39 @@
 .navbar__link--cta.navbar__link--active {
   background-color: var(--color-primary-dark);
   color: var(--color-text-inverse);
+}
+
+.navbar__dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 220px;
+  padding: var(--space-xs);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+  box-shadow: var(--shadow-md);
+  display: none;
+  z-index: 120;
+}
+
+.navbar__item--dropdown:hover .navbar__dropdown,
+.navbar__item--dropdown:focus-within .navbar__dropdown {
+  display: block;
+}
+
+.navbar__dropdown-link {
+  display: block;
+  padding: var(--space-sm) var(--space-md);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.navbar__dropdown-link:hover {
+  color: var(--color-primary);
+  background-color: var(--color-surface-alt);
 }
 
 /* Mobile */
@@ -102,6 +145,7 @@
     border-bottom: 1px solid var(--color-border);
     padding: var(--space-sm) var(--space-lg);
     box-shadow: var(--shadow-md);
+    gap: 0;
   }
 
   .navbar__links--open {
@@ -112,5 +156,30 @@
     width: 100%;
     justify-content: center;
     padding: var(--space-md);
+  }
+
+  .navbar__item {
+    width: 100%;
+  }
+
+  .navbar__item--dropdown {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .navbar__dropdown {
+    position: static;
+    display: block;
+    min-width: 0;
+    box-shadow: none;
+    border: none;
+    padding: 0 0 var(--space-sm);
+    background: transparent;
+  }
+
+  .navbar__dropdown-link {
+    text-align: center;
+    padding: var(--space-sm);
   }
 }

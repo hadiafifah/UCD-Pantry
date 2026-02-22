@@ -1,14 +1,12 @@
 import { Link } from 'react-router-dom'
-import { Clock, ChefHat, ArrowRight } from 'lucide-react'
-import FindRecipesButton from './FindRecipesButton.jsx'
+import { ChefHat, ArrowRight } from 'lucide-react'
+import { ingredientMatches } from '../data/recipes.js'
 import './RecipeSidebar.css'
 
 export default function RecipeSidebar({
   recipes,
   loading,
   userIngredients,
-  onRemoveIngredient,
-  onFindRecipes,
   hasSearched,
 }) {
   return (
@@ -18,49 +16,16 @@ export default function RecipeSidebar({
           <ChefHat size={20} />
           Recipe Suggestions
         </h2>
-        <div className="recipe-sidebar__selected">
-          <p className="recipe-sidebar__selected-label">Selected Ingredients</p>
-          {userIngredients.length > 0 ? (
-            <ul className="recipe-sidebar__selected-list" aria-label="Selected ingredients">
-              {userIngredients.map((ingredient) => (
-                <li key={ingredient} className="recipe-sidebar__selected-item">
-                  <span>{ingredient}</span>
-                  <button
-                    type="button"
-                    className="recipe-sidebar__selected-remove"
-                    onClick={() => onRemoveIngredient?.(ingredient)}
-                    aria-label={`Remove ${ingredient}`}
-                  >
-                    ×
-                  </button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p className="recipe-sidebar__selected-empty">No ingredients selected yet.</p>
-          )}
-        </div>
       </div>
-
-      <FindRecipesButton
-        className="recipe-sidebar__find-btn"
-        onClick={onFindRecipes}
-        loading={loading}
-        disabled={userIngredients.length === 0}
-      />
-
-      {userIngredients.length === 0 && !hasSearched && (
-        <p className="recipe-sidebar__hint">
-          Add some ingredients first, then click "Find Recipes" to see
-          suggestions.
-        </p>
-      )}
 
       <div className="recipe-sidebar__list">
         {recipes.map((recipe) => {
-          const matchedCount = recipe.ingredients.filter((ing) =>
+          const recipeIngredients = recipe.ingredients
+          const previewIngredients = recipeIngredients.slice(0, 5)
+          const hiddenCount = Math.max(recipeIngredients.length - previewIngredients.length, 0)
+          const matchedCount = recipeIngredients.filter((ing) =>
             userIngredients.some(
-              (ui) => ui.toLowerCase() === ing.toLowerCase()
+              (ui) => ingredientMatches(ui, ing)
             )
           ).length
 
@@ -69,24 +34,20 @@ export default function RecipeSidebar({
               <div className="recipe-card__top">
                 <h3 className="recipe-card__title">{recipe.title}</h3>
                 <div className="recipe-card__meta">
-                  <span className="recipe-card__time">
-                    <Clock size={14} />
-                    {recipe.prepTime + recipe.cookTime} min
-                  </span>
                   <span className="recipe-card__match">
-                    {matchedCount}/{recipe.ingredients.length} ingredients
+                    {matchedCount}/{recipeIngredients.length} ingredients
                   </span>
                 </div>
               </div>
 
               <ul className="recipe-card__ingredients">
-                {recipe.ingredients.map((ing) => {
+                {previewIngredients.map((ing, index) => {
                   const hasIt = userIngredients.some(
-                    (ui) => ui.toLowerCase() === ing.toLowerCase()
+                    (ui) => ingredientMatches(ui, ing)
                   )
                   return (
                     <li
-                      key={ing}
+                      key={`${ing}-${index}`}
                       className={`recipe-card__ingredient ${hasIt ? 'recipe-card__ingredient--have' : ''}`}
                     >
                       <span
@@ -107,9 +68,18 @@ export default function RecipeSidebar({
                     </li>
                   )
                 })}
+                {hiddenCount > 0 && (
+                  <li className="recipe-card__ingredient recipe-card__ingredient--more">
+                    +{hiddenCount} more ingredients
+                  </li>
+                )}
               </ul>
 
-              <Link to={`/recipe/${recipe.id}`} className="recipe-card__link">
+              <Link
+                to={`/recipe/${recipe.id}`}
+                state={{ selectedIngredients: userIngredients }}
+                className="recipe-card__link"
+              >
                 View Full Recipe
                 <ArrowRight size={14} />
               </Link>
